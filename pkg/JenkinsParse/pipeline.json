@@ -1,0 +1,111 @@
+{
+  "pipeline": {
+    "agent": {
+      "any": "",
+      "none": "",
+      "kubernetes": {
+        "defaultContainer": "",
+        "yaml": "",
+        "yamlFile": ""
+      },
+      "docker": {
+        "reuseNode": "bool",
+        "image": "",
+        "label": "",
+        "args": "",
+        "registryUrl": "",
+        "registryCredentialsId": "",
+        "customWorkspace": ""
+      },
+      "dockerfile": {
+        "reuseNode": "bool",
+        "filename": "",
+        "dir": "",
+        "label": "",
+        "additionalBuildArgs": "",
+        "args": "",
+        "customWorkspace": ""
+      },
+      "node": {
+        "label": "",
+        "customWorkspace": ""
+      },
+      "label": ""
+    },
+    "stages": {
+      "stage": {
+        "when": {
+          "whenQualifiers": "",
+          "whenPredicate": "",
+          "whenCondition": ""
+        },
+        "failFast": "bool",
+        "options": {
+          "*": ""
+        },
+        "agent": "json:root.agent",
+        "environment": "=",
+        "input": {
+          "message": "",
+          "submitter": "",
+          "id": ""
+        },
+        "tools": {
+          "IDENT": ""
+        },
+        "steps": {
+          "*": ""
+        },
+        "parallel": {
+          "*": ""
+        },
+        "stages": "json:self"
+      }
+    },
+    "environment": "=",
+    "options": {
+      "*": ""
+    },
+    "parameters": {
+      "*": ""
+    },
+    "post": {
+      "always": {
+        "*": ""
+      },
+      "changed": {
+        "*": ""
+      },
+      "fixed": {
+        "*": ""
+      },
+      "regression": {
+        "*": ""
+      },
+      "aborted": {
+        "*": ""
+      },
+      "failure": {
+        "*": ""
+      },
+      "success": {
+        "*": ""
+      },
+      "unstable": {
+        "*": ""
+      },
+      "unsuccessful": {
+        "*": ""
+      },
+      "cleanup": {
+        "*": ""
+      }
+    },
+    "tools": {
+      "IDENT": ""
+    },
+    "triggers": {
+      "*": ""
+    }
+  }
+}

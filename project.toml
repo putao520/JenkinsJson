@@ -1,0 +1,2 @@
+dockerRepository = "/test/docker/"
+port = "8080"

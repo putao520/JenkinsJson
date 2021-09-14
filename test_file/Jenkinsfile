@@ -1,0 +1,67 @@
+pipeline {
+  agent any
+  environment {
+        PROJECT_NAME = 'hello-rust'
+        PROJECT_VERSION = '0.1.0'
+        PORT = '8080'
+        REPO = 'putao282-docker.pkg.coding.net/packages/docker/'
+        DIR = '.'
+  }
+  stages {
+    stage("检出") {
+      steps {
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: GIT_BUILD_REF]],
+          userRemoteConfigs: [[
+            url: GIT_REPO_URL,
+            credentialsId: CREDENTIALS_ID
+            ]]
+        ])
+        sh "cd ${WORKSPACE}"
+      }
+    }
+    stage('编译') {
+      steps {
+        sh "cargo build --release"
+      }
+    }
+    stage('打包') {
+      steps {
+        sh """
+        docker build -t ${PROJECT_NAME}:${PROJECT_VERSION} .
+        docker tag ${PROJECT_NAME}:${PROJECT_VERSION} ${REPO}${PROJECT_NAME}:${PROJECT_VERSION}
+        docker push putao282-docker.pkg.coding.net/packages/docker/${PROJECT_NAME}:${PROJECT_VERSION}
+        """
+      }
+    }
+    stage('生成') {
+      steps {
+        sh """
+        echo 更新docker仓库
+        sed -i '/repository:/d' ./charts/values.yaml
+        sed -i '/repository:/a \\  repository: ${REPO}${PROJECT_NAME}' ./charts/values.yaml
+        echo 更新docker制品版本
+        sed -i '/tag:/d' ./charts/values.yaml
+        sed -i '/tag:/a \\  tag: ${PROJECT_VERSION}' ./charts/Chart.yaml
+        echo 更新chart版本
+        sed -i '/appVersion:/d' ./charts/Chart.yaml
+        sed -i '/appVersion:/a \\  appVersion: ${PROJECT_VERSION}' ./charts/Chart.yaml
+        sed -i '/version:/d' ./charts/Chart.yaml
+        sed -i '/version:/a \\  version: ${PROJECT_VERSION}' ./charts/Chart.yaml
+        echo 更新chart名称
+        sed -i '/name:/d' ./charts/Chart.yaml
+        sed -i '/name:/a \\  name: ${PROJECT_NAME}' ./charts/Chart.yaml
+        echo 更新dapr属性
+        sed -i '/dapr.io/app-id:/d' ./charts/values.yaml
+        sed -i '/dapr.io/app-id:/a \\  /dapr.io/app-id: ${PROJECT_NAME}' ./charts/Chart.yaml
+        echo 更新端口
+        sed -i '/dapr.io/app-port:/d' ./charts/values.yaml
+        sed -i '/dapr.io/app-port:/a \\  /dapr.io/app-port: ${PORT}' ./charts/Chart.yaml
+        sed -i '/port:/d' ./charts/values.yaml
+        sed -i '/port:/a \\  port: ${PORT}' ./charts/values.yaml
+        """
+      }
+    }
+  }
+}
